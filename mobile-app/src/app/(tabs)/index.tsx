@@ -1,21 +1,14 @@
-import { Image, StyleSheet, ScrollView, useColorScheme, View, Platform, Pressable } from 'react-native';
+import { StyleSheet, ScrollView, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
 
-import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth } from '@/constants/theme';
-import Button from '@/components/Button';
 import Header from '@/components/Header';
 import DailyChecker from '@/components/DailyChecker';
 import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function HomeScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   
   return (
     <ThemedView style={styles.container}>
@@ -30,12 +23,14 @@ export default function HomeScreen() {
             showsVerticalScrollIndicator={false}
           >
           <DailyChecker />
-          <Pressable 
-            style={styles.addButton} 
-            onPress={() => router.push('/habitRegister')}
-          >
-            <AntDesign name="plus" size={24} color="black" />
-          </Pressable>
+          <View style={styles.addButtonContainer}>
+            <Pressable 
+              style={styles.addButton} 
+              onPress={() => router.push('/habitRegister')}
+            >
+              <AntDesign name="plus" size={24} color="black" />
+            </Pressable>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -81,5 +76,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  addButtonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });

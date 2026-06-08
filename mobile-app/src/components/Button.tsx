@@ -2,18 +2,16 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
 
 type ButtonProps = {
-  link: string;
   text: string;
+  onPress: () => void;
   style?: StyleProp<ViewStyle>; 
 };
 
-export default function Button({ link, text, style }: ButtonProps) {
+export default function Button({ onPress, text, style }: ButtonProps) {
   return (
-    <Link href={link as any} asChild>
-      <Pressable style={StyleSheet.flatten([styles.button, style])}>
-        <Text style={styles.text}>{text}</Text>
-      </Pressable>
-    </Link>
+    <Pressable style={StyleSheet.flatten([styles.button, style])} onPress={onPress}>
+      <Text style={styles.text}>{text}</Text>
+    </Pressable>
   );
 }
 
