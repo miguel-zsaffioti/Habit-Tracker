@@ -6,12 +6,14 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth } from '@/constants/theme';
 import Button from '@/components/Button';
+import { useAuth } from '@/context/AuthContext';
 
-export default function HomeScreen() {
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { signIn } = useAuth();
   
   return (
     <ThemedView style={styles.container}>
@@ -34,7 +36,7 @@ export default function HomeScreen() {
             autoComplete="email"
             value={email}
             onChangeText={setEmail}
-            underlineColorAndroid="transparent" // Remove linha de foco nativa do Android
+            underlineColorAndroid="transparent"
           />
     
           <TextInput
@@ -45,13 +47,13 @@ export default function HomeScreen() {
             autoComplete="password"
             value={password}
             onChangeText={setPassword}
-            underlineColorAndroid="transparent" // Remove linha de foco nativa do Android
+            underlineColorAndroid="transparent"
           />
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button link="/login" text="Entrar" />
-          <Button link="/register" text="Registrar-se" />
+          <Button onPress={signIn} text="Entrar" />
+          <Button onPress={signIn} text="Registrar-se" />
         </View>
 
       </SafeAreaView>
@@ -101,9 +103,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E2E2E2', 
     paddingHorizontal: 0,
     fontSize: 16,
-    color: '#000', // Mantém o texto sempre preto
+    color: '#000',
     backgroundColor: 'transparent',
-    // Remove a borda de foco ao clicar no navegador (Web)
     ...Platform.select({
       web: {
         outlineStyle: 'none',
