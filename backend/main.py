@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database import get_db
-# from routers import users 
+from routers import habits 
 
 app = FastAPI()
 
@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(users.router)
+app.include_router(habits.router)
 
 @app.get("/")
 def read_root():
