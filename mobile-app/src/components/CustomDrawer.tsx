@@ -13,7 +13,7 @@ const drawerItems = [
 ];
 
 export default function CustomDrawer({ navigation }: DrawerContentComponentProps) {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingTop: 0 }}>
@@ -22,8 +22,8 @@ export default function CustomDrawer({ navigation }: DrawerContentComponentProps
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>U</Text>
           </View>
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john.doe@hotmail.com</Text>
+          <Text style={styles.userName}>{user?.name}</Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
         <View style={styles.listContainer}>
@@ -31,10 +31,7 @@ export default function CustomDrawer({ navigation }: DrawerContentComponentProps
             <Pressable
               key={item.route}
               style={styles.drawerItem}
-              onPress={() => {
-                navigation.closeDrawer();
-                router.push(item.route);
-              }}
+              onPressIn={() => router.push(item.route)}
             >
               <MaterialIcons name={item.icon} size={22} color="#333" />
               <Text style={styles.drawerItemText}>{item.label}</Text>
@@ -45,7 +42,7 @@ export default function CustomDrawer({ navigation }: DrawerContentComponentProps
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable style={styles.logoutButton} onPress={() => console.log('Fazer Logout')}>
+        <Pressable style={styles.logoutButton} onPress={signOut}>
           <MaterialIcons name="door-back" size={24} color="#E53935" />
           <Text style={styles.logoutText}>Sair</Text>
         </Pressable>

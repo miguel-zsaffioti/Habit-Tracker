@@ -1,19 +1,13 @@
-import { useState } from 'react';
-import { StyleSheet, TextInput, useColorScheme, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Button from '@/components/Button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { router, useLocalSearchParams } from 'expo-router';
 
-export default function RegisterScreen() {
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+export default function RedirectScreen() {
+  const { email, name, password } = useLocalSearchParams<{ email: string; name: string; password: string }>();
 
   return (
     <ThemedView style={styles.container}>
@@ -22,7 +16,7 @@ export default function RegisterScreen() {
             Nos ajude a alcançar seus objetivos mais <i><u>rápido</u></i>!
         </ThemedText>
         <View style={styles.bottomSection}>
-          <Button link="/questionnaire" text="Começar!" style={styles.button}/>
+          <Button onPress={() => router.push({ pathname: '/questionnaire', params: { email, name, password } })} text="Começar!" style={styles.button}/>
         </View>
       </SafeAreaView>
     </ThemedView>

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '@/components/Button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { router } from 'expo-router';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ export default function RegisterScreen() {
             Pronto para criar seu primeiro hábito?
         </ThemedText>
         <View style={styles.bottomSection}>
-          <Button link="/(tabs)" text="Começar!" style={styles.button}/>
+          <Button onPress={() => router.push('/redirect')} text="Começar!" style={styles.button}/>
         </View>
       </SafeAreaView>
     </ThemedView>
