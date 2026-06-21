@@ -9,6 +9,7 @@ type DrawerContentComponentProps = {
 const drawerItems = [
   { label: 'Início', route: '/' as const, icon: 'home' as const },
   { label: 'Criar Hábito', route: '/habitRegister' as const, icon: 'add-circle-outline' as const },
+  { label: 'Conquistas', route: '/badges' as const, icon: 'star' as const },
 ];
 
 export default function CustomDrawer({ navigation }: DrawerContentComponentProps) {

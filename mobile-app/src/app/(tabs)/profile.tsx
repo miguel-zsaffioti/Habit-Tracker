@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { StyleSheet, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Pressable, Text, Modal } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 import Header from '@/components/Header';
 import ProfileField from '@/components/ProfileField';
@@ -56,17 +55,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   avatarSection: {
-    alignItems: 'center', // Centraliza apenas o ícone
-    marginBottom: 24, // Espaço entre o ícone e o StatsCard
+    alignItems: 'center',
+    marginBottom: 24,
     width: '100%',
   },
   statsSection: {
     width: '100%',
-    marginBottom: 32, // Espaço maior entre as estatísticas e as informações pessoais
+    marginBottom: 32,
   },
   fieldsSection: {
-    width: '100%', // Garante que os campos ocupem toda a largura disponível
-    // Se o gap não funcionar na sua versão do React Native, você pode colocar marginBottom no ProfileField
+    width: '100%',
     gap: 12, 
   },           
 });
