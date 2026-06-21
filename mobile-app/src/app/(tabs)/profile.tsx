@@ -6,8 +6,10 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import Header from '@/components/Header';
 import ProfileField from '@/components/ProfileField';
 import StatsCard from '@/components/StatsCard';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProfileScreen() {
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -25,11 +27,11 @@ export default function ProfileScreen() {
           <StatsCard habits={3} streak={22} achievements={5} />
         </View>
 
-        {/* 3. Área dos Campos (Esticados ocupando 100% da largura) */}
+
         <View style={styles.fieldsSection}>
-          <ProfileField label="Nome" value="John Doe" />
-          <ProfileField label="E-mail" value="user@email.com" />
-          <ProfileField label="Nascimento" value="01/01/2000" />
+          <ProfileField label="Nome" value={user?.name ?? ''} />
+          <ProfileField label="E-mail" value={user?.email ?? ''} />
+          <ProfileField label="Nascimento" value={user?.birthDate ?? ''} />
         </View>
       </ScrollView>
 

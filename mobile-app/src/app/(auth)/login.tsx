@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TextInput, useColorScheme, View, Platform } from 'react-native';
+import { Image, StyleSheet, TextInput, useColorScheme, View, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth } from '@/constants/theme';
 import Button from '@/components/Button';
 import { useAuth } from '@/context/AuthContext';
+import { router } from 'expo-router';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -17,46 +18,51 @@ export default function LoginScreen() {
   
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        
-        <View style={styles.headerContainer}>
-          <Image source={require('@/assets/images/logo.svg')} style={styles.logo} />
-          <ThemedText type="title" style={styles.title}>
-            Do.it
-          </ThemedText>
-        </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <SafeAreaView style={styles.safeArea}>
+          
+          <View style={styles.headerContainer}>
+            <Image source={require('@/assets/images/logo.svg')} style={styles.logo} />
+            <ThemedText type="title" style={styles.title}>
+              Do.it
+            </ThemedText>
+          </View>
 
-        <View style={styles.formContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="E-mail"
-            placeholderTextColor={isDark ? '#555' : '#B0B0B0'}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            value={email}
-            onChangeText={setEmail}
-            underlineColorAndroid="transparent"
-          />
-    
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Senha"
-            placeholderTextColor={isDark ? '#555' : '#B0B0B0'}
-            secureTextEntry
-            autoComplete="password"
-            value={password}
-            onChangeText={setPassword}
-            underlineColorAndroid="transparent"
-          />
-        </View>
+          <View style={styles.formContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="E-mail"
+              placeholderTextColor={isDark ? '#555' : '#B0B0B0'}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              value={email}
+              onChangeText={setEmail}
+              underlineColorAndroid="transparent"
+            />
+      
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Senha"
+              placeholderTextColor={isDark ? '#555' : '#B0B0B0'}
+              secureTextEntry
+              autoComplete="password"
+              value={password}
+              onChangeText={setPassword}
+              underlineColorAndroid="transparent"
+            />
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <Button onPress={signIn} text="Entrar" />
-          <Button onPress={signIn} text="Registrar-se" />
-        </View>
+          <View style={styles.buttonContainer}>
+            <Button onPress={() => signIn(email, password)} text="Entrar" />
+            <Button onPress={() => router.push('/register')} text="Registrar-se" />
+          </View>
 
-      </SafeAreaView>
+        </SafeAreaView>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -65,6 +71,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F4F5F7', 
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   safeArea: {
     flex: 1,

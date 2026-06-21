@@ -6,6 +6,8 @@ import { Checkbox } from 'expo-checkbox';
 import Button from '@/components/Button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useAuth } from '@/context/AuthContext';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function QuestionnaireScreen() {
   const [check1, setCheck1] = useState(false);
@@ -14,6 +16,8 @@ export default function QuestionnaireScreen() {
   const [other, setOther] = useState('');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { signUp } = useAuth();
+  const { email, name, password } = useLocalSearchParams<{ email: string; name: string; password: string }>();
 
   return (
     <ThemedView style={styles.container}>
@@ -78,7 +82,7 @@ export default function QuestionnaireScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          <Button link="/start" text="Finalizar!" style={styles.button}/>
+          <Button onPress={() => signUp(name ?? '', email ?? '', password ?? '', '')} text="Finalizar!" style={styles.button}/>
         </View>
       </SafeAreaView>
     </ThemedView>

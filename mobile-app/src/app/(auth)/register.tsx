@@ -6,6 +6,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Button from '@/components/Button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { router } from 'expo-router';
 
 LocaleConfig.locales['pt-br'] = {
   monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
@@ -20,20 +21,18 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [password, setPassword] = useState('');
   
-  // Estados para o Calendário
   const [birthDate, setBirthDate] = useState('');
-  const [selectedDate, setSelectedDate] = useState(''); // Armazena no formato YYYY-MM-DD para o componente
+  const [selectedDate, setSelectedDate] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
 
   const handleDayPress = (day: any) => {
     setSelectedDate(day.dateString);
     
-    // Converte de YYYY-MM-DD para o formato brasileiro DD/MM/AAAA
     const [year, month, date] = day.dateString.split('-');
     setBirthDate(`${date}/${month}/${year}`);
     
-    // Fecha o modal do calendário
     setShowCalendar(false);
   };
 
@@ -62,6 +61,17 @@ export default function RegisterScreen() {
 
             <TextInput
               style={styles.input}
+              placeholder="Senha"
+              placeholderTextColor="#B0B0B0"
+              secureTextEntry
+              autoComplete="password"
+              value={password}
+              onChangeText={setPassword}
+              underlineColorAndroid="transparent"
+            />
+
+            <TextInput
+              style={styles.input}
               placeholder="Primeiro nome"
               placeholderTextColor="#B0B0B0"
               autoCapitalize="words"
@@ -82,7 +92,6 @@ export default function RegisterScreen() {
               {...Platform.select({ web: { outlineStyle: 'none' } } as any)}
             />
  
-            {/* Campo que simula o input e abre o Modal do Calendário ao ser clicado */}
             <Pressable onPress={() => setShowCalendar(true)}>
               <View style={[styles.input, styles.dateInput]}>
                 <Text style={{ color: birthDate ? '#000' : '#B0B0B0', fontSize: 16 }}>
@@ -124,7 +133,7 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          <Button link="/redirect" text="Registrar-se" style={styles.button as any} />
+          <Button onPress={() => router.push({ pathname: '/redirect', params: { email, password, name: `${firstName} ${lastName}`.trim() } })} text="Registrar-se" style={styles.button as any} />
         </View>
 
       </SafeAreaView>
@@ -169,11 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     backgroundColor: 'transparent',
-        ...Platform.select({
-      web: {
-        outlineStyle: 'none',
-      },
-    }),
+    ...(Platform.OS === 'web' && { outlineStyle: 'none' as any }),
   },
   dateInput: {
     justifyContent: 'center', 
@@ -193,10 +198,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  // Estilos do Modal e Calendário
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fundo escurecido semi-transparente
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
