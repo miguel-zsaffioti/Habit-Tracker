@@ -9,6 +9,7 @@ type DrawerContentComponentProps = {
 const drawerItems = [
   { label: 'Início', route: '/' as const, icon: 'home' as const },
   { label: 'Criar Hábito', route: '/habitRegister' as const, icon: 'add-circle-outline' as const },
+  { label: 'Conquistas', route: '/badges' as const, icon: 'star' as const },
 ];
 
 export default function CustomDrawer({ navigation }: DrawerContentComponentProps) {
@@ -21,8 +22,8 @@ export default function CustomDrawer({ navigation }: DrawerContentComponentProps
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>U</Text>
           </View>
-          <Text style={styles.userName}>User</Text>
-          <Text style={styles.userEmail}>user@email.com</Text>
+          <Text style={styles.userName}>John Doe</Text>
+          <Text style={styles.userEmail}>john.doe@hotmail.com</Text>
         </View>
 
         <View style={styles.listContainer}>
@@ -30,7 +31,10 @@ export default function CustomDrawer({ navigation }: DrawerContentComponentProps
             <Pressable
               key={item.route}
               style={styles.drawerItem}
-              onPress={signOut}
+              onPress={() => {
+                navigation.closeDrawer();
+                router.push(item.route);
+              }}
             >
               <MaterialIcons name={item.icon} size={22} color="#333" />
               <Text style={styles.drawerItemText}>{item.label}</Text>

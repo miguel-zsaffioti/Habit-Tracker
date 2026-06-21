@@ -24,6 +24,20 @@ export default function AppLayout() {
             drawerLabel: 'Criar Hábito', 
           }}
         />
+
+        <Drawer.Screen
+          name="badges"
+          options={{
+            drawerLabel: 'Conquistas',
+          }}
+        />
+
+        <Drawer.Screen
+          name="profile"
+          options={{
+            drawerLabel: 'Perfil',
+          }}
+        />
         
       </Drawer>
     </GestureHandlerRootView>

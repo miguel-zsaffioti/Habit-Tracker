@@ -2,10 +2,8 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-import models
-from database import engine, get_db
-
-models.Base.metadata.create_all(bind=engine)
+from database import get_db
+from routers import habits, achievements
 
 app = FastAPI()
 
@@ -17,9 +15,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(habits.router)
+app.include_router(achievements.router)
+
 @app.get("/")
 def read_root():
-    return {"status": "Backend e Postgres conectados com sucesso"}
+    return {"status": "Backend rodando e aguardando conexões"}
 
 @app.get("/test-db")
 def test_db_connection(db: Session = Depends(get_db)):
