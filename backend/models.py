@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String
-from database import Base
-from sqlalchemy import Boolean, Date, ForeignKey, ARRAY, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, Text, DateTime
+from sqlalchemy import ARRAY, UniqueConstraint
 from sqlalchemy.sql import func
+from database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -28,6 +29,7 @@ class Habit(Base):
     current_streak = Column(Integer, default=0)
     criado_em = Column(DateTime, default=func.now())
 
+
 class HabitLog(Base):
     __tablename__ = "habit_logs"
 
@@ -36,6 +38,7 @@ class HabitLog(Base):
     data_checkin = Column(Date, nullable=False)
     concluido = Column(Boolean, default=True)
     criado_em = Column(DateTime, default=func.now())
+
 
 class Achievement(Base):
     __tablename__ = "achievements"
@@ -46,3 +49,11 @@ class Achievement(Base):
     criterio_tipo = Column(String(50))
     criterio_valor = Column(Integer, nullable=False)
     icone_referencia = Column(String(100))
+
+
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    achievement_id = Column(Integer, ForeignKey("achievements.id", ondelete="CASCADE"), primary_key=True)
+    data_desbloqueio = Column(DateTime, default=func.now())
