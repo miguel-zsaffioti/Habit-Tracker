@@ -4,17 +4,16 @@ from datetime import date, timedelta
 
 import models
 from database import get_db
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/achievements",
     tags=["achievements"]
 )
 
-# ==========================================
-# DEPENDENCIA MOCK (igual ao habits.py)
-# ==========================================
-def get_current_user_id():
-    return 1
+
+def get_current_user_id(user: models.User = Depends(get_current_user)) -> int:
+    return user.id
 
 
 

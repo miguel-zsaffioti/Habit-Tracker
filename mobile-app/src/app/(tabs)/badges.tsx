@@ -1,37 +1,61 @@
-import { useState } from 'react';
-import { StyleSheet, View, ScrollView, Text } from 'react-native';
+import { useCallback, useState } from 'react';
+import { StyleSheet, View, ScrollView, Text, ActivityIndicator, ImageSourcePropType } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 
 import AchievementsCard from '@/components/AchievementsCard';
 import BadgeCard from '@/components/BadgeCard';
 import Header from '@/components/Header';
+import { getAchievements, type Achievement } from '@/services/achievements';
+
+const iconMap: Record<string, ImageSourcePropType> = {
+  chama: require('@/assets/images/fire.png'),
+  calendario: require('@/assets/images/calendar.png'),
+  planta: require('@/assets/images/plant.png'),
+  musculo: require('@/assets/images/arm.png'),
+  alvo: require('@/assets/images/target.png'),
+  diamante: require('@/assets/images/diamond.png'),
+  foguete: require('@/assets/images/rocket.png'),
+  medalha: require('@/assets/images/medal.png'),
+  estrela: require('@/assets/images/star.png'),
+};
+
+const fallbackIcon = require('@/assets/images/star.png');
 
 export default function Badges() {
-  const fireImage = require('@/assets/images/fire.png');
-  const calendarImage = require('@/assets/images/calendar.png');
-  const plantImage = require('@/assets/images/plant.png');
-  const armsImage = require('@/assets/images/arm.png');
-  const targetImage = require('@/assets/images/target.png');
-  
-  const diamondImage = require('@/assets/images/diamond.png');
-  const rocketImage = require('@/assets/images/rocket.png');
-  const medalImage = require('@/assets/images/medal.png');
-  const starImage = require('@/assets/images/star.png');
+  const [unlocked, setUnlocked] = useState<Achievement[]>([]);
+  const [locked, setLocked] = useState<Achievement[]>([]);
+  const [total, setTotal] = useState(0);
+  const [unlockedCount, setUnlockedCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const unlockedBadges = [
-    { image: fireImage, title: 'Primeira chama', description: '7 dias seguidos' },
-    { image: calendarImage, title: 'Mês perfeito', description: '30 dias seguidos' },
-    { image: plantImage, title: 'Primeiro passo', description: '1º hábito criado' },
-    { image: armsImage, title: 'Comprometido', description: '3 hábitos ativos' },
-    { image: targetImage, title: 'Foco total', description: 'Meta atingida' },
-  ];
+  const fetchAchievements = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getAchievements();
+      setTotal(data.total);
+      setUnlockedCount(data.desbloqueadas);
+      setUnlocked(data.conquistas.filter(c => c.desbloqueada));
+      setLocked(data.conquistas.filter(c => !c.desbloqueada));
+    } catch {
+      setUnlocked([]);
+      setLocked([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const lockedBadges = [
-    { image: diamondImage, title: 'Diamante', description: '100 dias seguidos' },
-    { image: rocketImage, title: 'Decolagem', description: '5 hábitos ativos' },
-    { image: medalImage, title: 'Campeão', description: '365 dias totais' },
-    { image: starImage, title: 'Estrela', description: '100% por 1 sem.' },
-  ];
+  useFocusEffect(useCallback(() => { fetchAchievements(); }, [fetchAchievements]));
+
+  const getIcon = (ref: string) => iconMap[ref] ?? fallbackIcon;
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FFCC00" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -41,40 +65,44 @@ export default function Badges() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.achievementsSection}>
-            <AchievementsCard />
+            <AchievementsCard current={unlockedCount} total={total} />
         </View>
 
-        <View style={styles.badgesSection}>
-            <Text style={styles.badgesTitle}>Desbloqueadas</Text>
-            <View style={styles.badgesGrid}>
-                {unlockedBadges.map((badge) => (
-                    <View style={styles.cardWrapper} key={badge.title}>
-                        <BadgeCard 
-                            image={badge.image} 
-                            title={badge.title} 
-                            description={badge.description} 
-                            isLocked={false} 
-                        />
-                    </View>
-                ))}
-            </View>
-        </View>
+        {unlocked.length > 0 && (
+          <View style={styles.badgesSection}>
+              <Text style={styles.badgesTitle}>Desbloqueadas</Text>
+              <View style={styles.badgesGrid}>
+                  {unlocked.map((badge) => (
+                      <View style={styles.cardWrapper} key={badge.id}>
+                          <BadgeCard 
+                              image={getIcon(badge.icone_referencia)} 
+                              title={badge.nome} 
+                              description={badge.descricao} 
+                              isLocked={false} 
+                          />
+                      </View>
+                  ))}
+              </View>
+          </View>
+        )}
 
-        <View style={styles.badgesSection}>
-            <Text style={styles.badgesTitle}>Bloqueadas</Text>
-            <View style={styles.badgesGrid}>
-                {lockedBadges.map((badge) => (
-                    <View style={styles.cardWrapper} key={badge.title}>
-                        <BadgeCard 
-                            image={badge.image} 
-                            title={badge.title} 
-                            description={badge.description} 
-                            isLocked={true} 
-                        />
-                    </View>
-                ))}
-            </View>
-        </View>          
+        {locked.length > 0 && (
+          <View style={styles.badgesSection}>
+              <Text style={styles.badgesTitle}>Bloqueadas</Text>
+              <View style={styles.badgesGrid}>
+                  {locked.map((badge) => (
+                      <View style={styles.cardWrapper} key={badge.id}>
+                          <BadgeCard 
+                              image={getIcon(badge.icone_referencia)} 
+                              title={badge.nome} 
+                              description={badge.descricao} 
+                              isLocked={true} 
+                          />
+                      </View>
+                  ))}
+              </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

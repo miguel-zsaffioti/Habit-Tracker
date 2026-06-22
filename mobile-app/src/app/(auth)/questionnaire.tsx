@@ -17,7 +17,7 @@ export default function QuestionnaireScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { signUp } = useAuth();
-  const { email, name, password } = useLocalSearchParams<{ email: string; name: string; password: string }>();
+  const { email, name, password, birthDate } = useLocalSearchParams<{ email: string; name: string; password: string; birthDate: string }>();
 
   return (
     <ThemedView style={styles.container}>
@@ -40,7 +40,7 @@ export default function QuestionnaireScreen() {
                 color={check1 ? '#222' : undefined}
               />
               <ThemedText style={styles.paragraph}>
-                Tenho dificuldade em implementar hábitos em minha rotina
+                Tenho dificuldade em implementar hábitos em minha rotina.
               </ThemedText>
             </View>
 
@@ -52,7 +52,7 @@ export default function QuestionnaireScreen() {
                 color={check2 ? '#222' : undefined}
               />
               <ThemedText style={styles.paragraph}>
-                Quero cumprir alguma meta de fim de ano
+                Quero cumprir alguma meta de fim de ano.
               </ThemedText>
             </View>
 
@@ -64,7 +64,7 @@ export default function QuestionnaireScreen() {
                 color={check3 ? '#222' : undefined}
               />
               <ThemedText style={styles.paragraph}>
-                Quero cumprir alguma meta de fim de ano
+                Quero medir minha consistência diária.
               </ThemedText>
             </View>
 
@@ -82,7 +82,7 @@ export default function QuestionnaireScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          <Button onPress={() => signUp(name ?? '', email ?? '', password ?? '', '')} text="Finalizar!" style={styles.button}/>
+          <Button onPress={() => signUp(name ?? '', email ?? '', password ?? '', birthDate ?? '')} text="Finalizar!" style={styles.button}/>
         </View>
       </SafeAreaView>
     </ThemedView>

@@ -1,16 +1,17 @@
 import { createContext, useContext, useState } from 'react';
 import { Alert, Platform } from 'react-native';
-import { api } from '@/services/api';
+import { api, setApiToken } from '@/services/api';
 
 type User = {
     id: number;
     name: string;
     email: string;
-    birthDate: string;
+    data_nascimento: string | null;
 };
 
 type AuthContextType = {
     user: User | null;
+    token: string | null;
     loading: boolean;
     signIn: (email: string, password: string) => Promise<void>;
     signUp: (name: string, email: string, password: string, birthDate: string) => Promise<void>;
@@ -29,6 +30,7 @@ function showError(message: string) {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     const signIn = async (email: string, password: string) => {
@@ -39,10 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setLoading(true);
         try {
-            const data = await api<{ user: User; token: string }>('/auth/login', {
+            const data = await api<{ user: User; access_token: string }>('/auth/login', {
                 method: 'POST',
                 body: { email, password },
             });
+            setToken(data.access_token);
+            setApiToken(data.access_token);
             setUser(data.user);
         } catch (e) {
             showError(e instanceof Error ? e.message : 'Não foi possível fazer login.');
@@ -59,13 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setLoading(true);
         try {
-            const data = await api<{ user: User; token: string }>('/auth/register', {
+            const data = await api<{ user: User; access_token: string }>('/auth/register', {
                 method: 'POST',
-                body: { name, email, password, birthDate },
+                body: { name, email, password, data_nascimento: birthDate || null },
             });
+            setToken(data.access_token);
+            setApiToken(data.access_token);
             setUser(data.user);
         } catch (e) {
-            showError(e instanceof Error ? 'a' : 'Não foi possível criar a conta.');
+            showError(e instanceof Error ? e.message: 'Não foi possível criar a conta.');
         } finally {
             setLoading(false);
         }
@@ -73,10 +79,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signOut = () => {
         setUser(null);
+        setToken(null);
+        setApiToken(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+        <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signOut }}>
             {children}
         </AuthContext.Provider>
     );

@@ -7,9 +7,9 @@ type StatsCardProps = {
 };
 
 export default function StatsCard({ 
-  habits = 3, 
-  streak = 22, 
-  achievements = 5 
+  habits, 
+  streak, 
+  achievements
 }: StatsCardProps) {
   return (
     <View style={styles.container}>

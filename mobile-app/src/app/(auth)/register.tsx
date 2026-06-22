@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View, Pressable, Platform, Text, Modal } from 'react-native';
+import { StyleSheet, TextInput, View, Pressable, Platform, Text, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { AntDesign } from '@expo/vector-icons';
 
 import Button from '@/components/Button';
 import { ThemedText } from '@/components/themed-text';
@@ -26,6 +27,10 @@ export default function RegisterScreen() {
   const [birthDate, setBirthDate] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showYearPicker, setShowYearPicker] = useState(false);
+
+  const currentYear = new Date().getFullYear();
+  const [calendarMonth, setCalendarMonth] = useState(`${currentYear}-01-01`);
 
   const handleDayPress = (day: any) => {
     setSelectedDate(day.dateString);
@@ -34,6 +39,12 @@ export default function RegisterScreen() {
     setBirthDate(`${date}/${month}/${year}`);
     
     setShowCalendar(false);
+  };
+
+  const handleYearSelect = (year: number) => {
+    const month = calendarMonth.split('-')[1] ?? '01';
+    setCalendarMonth(`${year}-${month}-01`);
+    setShowYearPicker(false);
   };
 
   return (
@@ -106,24 +117,59 @@ export default function RegisterScreen() {
               animationType="fade"
               onRequestClose={() => setShowCalendar(false)}
             >
-              <Pressable style={styles.modalOverlay} onPress={() => setShowCalendar(false)}>
-                <View style={styles.calendarContainer}>
-                  <Calendar
-                    onDayPress={handleDayPress}
-                    maxDate={new Date().toISOString().split('T')[0]} // Impede selecionar datas futuras
-                    markedDates={{
-                      [selectedDate]: { selected: true, disableTouchEvent: true, selectedColor: '#FFCC00', selectedTextColor: '#000' }
-                    }}
-                    theme={{
-                      todayTextColor: '#FFCC00',
-                      arrowColor: '#000',
-                      textDayFontWeight: '500',
-                      textMonthFontWeight: 'bold',
-                      textDayHeaderFontWeight: '500',
-                    }}
-                  />
+              <Pressable style={styles.modalOverlay} onPress={() => { setShowCalendar(false); setShowYearPicker(false); }}>
+                <View style={styles.calendarContainer} onStartShouldSetResponder={() => true}>
+                  {showYearPicker ? (
+                    <View style={styles.yearPickerContainer}>
+                      <Text style={styles.yearPickerTitle}>Selecione o ano</Text>
+                      <ScrollView style={styles.yearScroll} contentContainerStyle={styles.yearScrollContent}>
+                        {Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i).map(year => (
+                          <Pressable
+                            key={year}
+                            style={[
+                              styles.yearItem,
+                              calendarMonth.startsWith(String(year)) && styles.yearItemSelected,
+                            ]}
+                            onPress={() => handleYearSelect(year)}
+                          >
+                            <Text style={[
+                              styles.yearItemText,
+                              calendarMonth.startsWith(String(year)) && styles.yearItemTextSelected,
+                            ]}>
+                              {year}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  ) : (
+                    <>
+                      <Pressable style={styles.yearSelector} onPress={() => setShowYearPicker(true)}>
+                        <Text style={styles.yearSelectorText}>{calendarMonth.split('-')[0]}</Text>
+                        <AntDesign name="down" size={14} color="#000" />
+                      </Pressable>
+
+                      <Calendar
+                        key={calendarMonth}
+                        initialDate={calendarMonth}
+                        onDayPress={handleDayPress}
+                        onMonthChange={(month: any) => setCalendarMonth(month.dateString)}
+                        maxDate={new Date().toISOString().split('T')[0]}
+                        markedDates={{
+                          [selectedDate]: { selected: true, disableTouchEvent: true, selectedColor: '#FFCC00', selectedTextColor: '#000' }
+                        }}
+                        theme={{
+                          todayTextColor: '#FFCC00',
+                          arrowColor: '#000',
+                          textDayFontWeight: '500',
+                          textMonthFontWeight: 'bold',
+                          textDayHeaderFontWeight: '500',
+                        }}
+                      />
+                    </>
+                  )}
                   
-                  <Pressable style={styles.closeButton} onPress={() => setShowCalendar(false)}>
+                  <Pressable style={styles.closeButton} onPress={() => { setShowCalendar(false); setShowYearPicker(false); }}>
                     <Text style={styles.closeButtonText}>Cancelar</Text>
                   </Pressable>
                 </View>
@@ -133,7 +179,7 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          <Button onPress={() => router.push({ pathname: '/redirect', params: { email, password, name: `${firstName} ${lastName}`.trim() } })} text="Registrar-se" style={styles.button as any} />
+          <Button onPress={() => router.push({ pathname: '/redirect', params: { email, password, name: `${firstName} ${lastName}`.trim(), birthDate: selectedDate } })} text="Registrar-se" style={styles.button as any} />
         </View>
 
       </SafeAreaView>
@@ -216,6 +262,57 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  yearSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    marginBottom: 4,
+  },
+  yearSelectorText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#000',
+  },
+  yearPickerContainer: {
+    alignItems: 'center',
+  },
+  yearPickerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 12,
+  },
+  yearScroll: {
+    maxHeight: 280,
+    width: '100%',
+  },
+  yearScrollContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    paddingBottom: 8,
+  },
+  yearItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  yearItemSelected: {
+    backgroundColor: '#FFCC00',
+  },
+  yearItemText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#333',
+  },
+  yearItemTextSelected: {
+    color: '#000',
+    fontWeight: '700',
   },
   closeButton: {
     marginTop: 12,

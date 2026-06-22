@@ -6,6 +6,7 @@ from typing import List
 import models
 import schemas
 from database import get_db
+from auth import get_current_user
 from routers.achievements import verificar_e_desbloquear
 
 router = APIRouter(
@@ -13,11 +14,9 @@ router = APIRouter(
     tags=["habits"]
 )
 
-# ==========================================
-# DEPENDENCIA MOCK (Substitua por PyJWT depois)
-# ==========================================
-def get_current_user_id():
-    return 1
+
+def get_current_user_id(user: models.User = Depends(get_current_user)) -> int:
+    return user.id
 
 
 @router.post("/", response_model=schemas.HabitResponse, status_code=status.HTTP_201_CREATED)

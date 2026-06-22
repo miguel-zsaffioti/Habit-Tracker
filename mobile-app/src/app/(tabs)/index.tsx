@@ -1,5 +1,7 @@
-import { StyleSheet, ScrollView, View, Pressable } from 'react-native';
+import { useCallback, useState } from 'react';
+import { StyleSheet, ScrollView, View, Pressable, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth } from '@/constants/theme';
@@ -7,9 +9,43 @@ import Header from '@/components/Header';
 import DailyChecker from '@/components/DailyChecker';
 import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { getTodayHabits, toggleCheckin, type HabitToday } from '@/services/habits';
+import { getApiToken } from '@/services/api';
 
 export default function HomeScreen() {
-  
+  const [habits, setHabits] = useState<HabitToday[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchHabits = useCallback(async () => {
+    if (!getApiToken()) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await getTodayHabits();
+      setHabits(data);
+    } catch {
+      setHabits([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { fetchHabits(); }, [fetchHabits]));
+
+  const handleToggle = async (habitId: number) => {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      await toggleCheckin(habitId, today);
+      setHabits(prev =>
+        prev.map(h =>
+          h.habito.id === habitId ? { ...h, feito_hoje: !h.feito_hoje } : h
+        )
+      );
+    } catch { /* silently ignore */ }
+  };
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -22,7 +58,21 @@ export default function HomeScreen() {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-          <DailyChecker />
+          {loading ? (
+            <ActivityIndicator size="large" color="#FFCC00" style={{ marginTop: 40 }} />
+          ) : habits.length === 0 ? (
+            <Text style={styles.emptyText}>Nenhum hábito para hoje.</Text>
+          ) : (
+            habits.map(h => (
+              <DailyChecker
+                key={h.habito.id}
+                nome={h.habito.nome}
+                streak={h.habito.current_streak}
+                checked={h.feito_hoje}
+                onToggle={() => handleToggle(h.habito.id)}
+              />
+            ))
+          )}
           <View style={styles.addButtonContainer}>
             <Pressable 
               style={styles.addButton} 
@@ -76,6 +126,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 16,
+    marginTop: 40,
   },
   addButtonContainer: {
     width: '100%',

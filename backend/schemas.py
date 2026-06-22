@@ -2,6 +2,30 @@ from pydantic import BaseModel
 from datetime import date
 from typing import List, Optional
 
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    data_nascimento: Optional[date] = None
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    data_nascimento: Optional[date] = None
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    user: UserResponse
+
 class HabitBase(BaseModel):
     nome: str
     descricao: Optional[str] = None

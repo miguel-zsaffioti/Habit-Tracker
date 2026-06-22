@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { router, useLocalSearchParams } from 'expo-router';
 
 export default function RedirectScreen() {
-  const { email, name, password } = useLocalSearchParams<{ email: string; name: string; password: string }>();
+  const { email, name, password, birthDate } = useLocalSearchParams<{ email: string; name: string; password: string; birthDate: string }>();
 
   return (
     <ThemedView style={styles.container}>
@@ -16,7 +16,7 @@ export default function RedirectScreen() {
             Nos ajude a alcançar seus objetivos mais <i><u>rápido</u></i>!
         </ThemedText>
         <View style={styles.bottomSection}>
-          <Button onPress={() => router.push({ pathname: '/questionnaire', params: { email, name, password } })} text="Começar!" style={styles.button}/>
+          <Button onPress={() => router.push({ pathname: '/questionnaire', params: { email, name, password, birthDate } })} text="Começar!" style={styles.button}/>
         </View>
       </SafeAreaView>
     </ThemedView>

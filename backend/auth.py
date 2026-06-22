@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
@@ -10,6 +11,8 @@ from sqlalchemy.orm import Session
 
 import models
 from database import get_db
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -46,16 +49,39 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # #region agent log
+    import json as _j, time as _t
+    def _dlog(msg, data=None, hyp="H3"):
+        with open("/app/debug-160669.log","a") as _f:
+            _f.write(_j.dumps({"sessionId":"160669","hypothesisId":hyp,"location":"auth.py:get_current_user","message":msg,"data":data,"timestamp":int(_t.time()*1000)})+"\n")
+    _dlog("token_received", {"token_prefix": token[:30] if token else "NONE", "secret_key_prefix": SECRET_KEY[:10]}, "H1")
+    # #endregion
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int | None = payload.get("sub")
+        sub = payload.get("sub")
+        user_id: int | None = int(sub) if sub is not None else None
+        # #region agent log
+        _dlog("jwt_decoded_ok", {"sub": user_id, "payload_keys": list(payload.keys())}, "H3")
+        # #endregion
         if user_id is None:
+            # #region agent log
+            _dlog("fail_sub_none", {}, "H3")
+            # #endregion
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        # #region agent log
+        _dlog("fail_jwt_error", {"error": str(e)}, "H3")
+        # #endregion
         raise credentials_exception
 
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
+        # #region agent log
+        _dlog("fail_user_not_found", {"user_id": user_id}, "H4")
+        # #endregion
         raise credentials_exception
 
+    # #region agent log
+    _dlog("auth_ok", {"user_id": user.id, "user_name": user.name}, "H3")
+    # #endregion
     return user

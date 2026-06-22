@@ -1,14 +1,34 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
 
 import Header from '@/components/Header';
 import ProfileField from '@/components/ProfileField';
 import StatsCard from '@/components/StatsCard';
 import { useAuth } from '@/context/AuthContext';
+import { listHabits } from '@/services/habits';
+import { getAchievements } from '@/services/achievements';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const [habitsCount, setHabitsCount] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [achievementsCount, setAchievementsCount] = useState(0);
+
+  useFocusEffect(useCallback(() => {
+    listHabits()
+      .then(habits => {
+        setHabitsCount(habits.length);
+        setMaxStreak(Math.max(0, ...habits.map(h => h.current_streak)));
+      })
+      .catch(() => {});
+
+    getAchievements()
+      .then(data => setAchievementsCount(data.desbloqueadas))
+      .catch(() => {});
+  }, []));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -23,14 +43,14 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.statsSection}>
-          <StatsCard habits={3} streak={22} achievements={5} />
+          <StatsCard habits={habitsCount} streak={maxStreak} achievements={achievementsCount} />
         </View>
 
 
         <View style={styles.fieldsSection}>
           <ProfileField label="Nome" value={user?.name ?? ''} />
           <ProfileField label="E-mail" value={user?.email ?? ''} />
-          <ProfileField label="Nascimento" value={user?.birthDate ?? ''} />
+          <ProfileField label="Nascimento" value={user?.data_nascimento ?? ''} />
         </View>
       </ScrollView>
 

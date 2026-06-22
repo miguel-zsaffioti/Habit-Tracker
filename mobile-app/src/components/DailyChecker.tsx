@@ -1,36 +1,30 @@
-import { useState } from 'react';
-import { StyleSheet, Text, StyleProp, ViewStyle, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 type DailyCheckerProps = {
-  text: string;
-  days?: number; // Propriedade opcional para deixar o número de dias dinâmico
-  style?: StyleProp<ViewStyle>; 
+  nome: string;
+  streak: number;
+  checked: boolean;
+  onToggle: () => void;
 };
 
-export default function DailyChecker() {
-  // Estado que controla se o botão está marcado ou não
-  const [isChecked, setIsChecked] = useState(false);
-
+export default function DailyChecker({ nome, streak, checked, onToggle }: DailyCheckerProps) {
   return (
     <View style={styles.container}>
       
-      {/* Coluna da esquerda (Textos e Fogo) */}
       <View style={styles.leftSection}>
-        <Text style={styles.title}>Aprender inglês</Text>
+        <Text style={styles.title}>{nome}</Text>
         <View style={styles.strikes}>
           <AntDesign name="fire" size={20} color="black" />
-          <Text style={styles.daysText}>22 dias</Text>
+          <Text style={styles.daysText}>{streak} {streak === 1 ? 'dia' : 'dias'}</Text>
         </View>
       </View>
 
-      {/* Coluna da direita (Botão de Check) */}
       <Pressable 
-        style={[styles.checkButton, isChecked && styles.checkButtonActive]} 
-        onPress={() => setIsChecked(!isChecked)}
+        style={[styles.checkButton, checked && styles.checkButtonActive]} 
+        onPress={onToggle}
       >
-        {/* Só mostra o ícone de check se estiver marcado */}
-        {isChecked && <AntDesign name="check" size={24} color="black" />}
+        {checked && <AntDesign name="check" size={24} color="black" />}
       </Pressable>
       
     </View>

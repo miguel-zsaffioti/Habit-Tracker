@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Pressable, Text, Modal } from 'react-native';
+import { StyleSheet, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Pressable, Text, Modal, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { useRouter } from 'expo-router';
 
-import Header from '@/components/Header'; // O componente amarelo do topo
+import Header from '@/components/Header';
+import { createHabit } from '@/services/habits';
 
 // Configuração do calendário para o idioma Português
 LocaleConfig.locales['pt-br'] = {
@@ -15,9 +17,16 @@ LocaleConfig.locales['pt-br'] = {
 };
 LocaleConfig.defaultLocale = 'pt-br';
 
+function showError(message: string) {
+  if (Platform.OS === 'web') window.alert(message);
+  else Alert.alert('Erro', message);
+}
+
 export default function CreateHabitScreen() {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
   
   // Estados de exibição formatada (DD/MM/AAAA)
   const [startDate, setStartDate] = useState('');
@@ -53,6 +62,42 @@ export default function CreateHabitScreen() {
     setShowCalendar(true);
   };
 
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      showError('Preencha o nome do hábito.');
+      return;
+    }
+    if (!rawStartDate) {
+      showError('Selecione a data de início.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await createHabit({
+        nome: name.trim(),
+        descricao: description.trim() || undefined,
+        frequencia_dias: [0, 1, 2, 3, 4, 5, 6],
+        data_inicio: rawStartDate,
+        data_fim: rawEndDate || undefined,
+      });
+
+      if (Platform.OS === 'web') window.alert('Hábito criado com sucesso!');
+      else Alert.alert('Sucesso', 'Hábito criado com sucesso!');
+
+      setName('');
+      setDescription('');
+      setStartDate('');
+      setEndDate('');
+      setRawStartDate('');
+      setRawEndDate('');
+    } catch (e) {
+      showError(e instanceof Error ? e.message : 'Não foi possível criar o hábito.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       
@@ -82,7 +127,6 @@ export default function CreateHabitScreen() {
             />
 
             <View style={styles.row}>
-              {/* Botão falso para a Data de Início */}
               <Pressable 
                 style={[styles.input, styles.halfInput, styles.dateInput]} 
                 onPress={() => openCalendarFor('start')}
@@ -92,7 +136,6 @@ export default function CreateHabitScreen() {
                 </Text>
               </Pressable>
 
-              {/* Botão falso para a Data de Fim */}
               <Pressable 
                 style={[styles.input, styles.halfInput, styles.dateInput]} 
                 onPress={() => openCalendarFor('end')}
@@ -115,15 +158,16 @@ export default function CreateHabitScreen() {
           </View>
 
           <View style={styles.buttonContainer}>
-            <Pressable style={styles.createButton} onPress={() => console.log('Criar hábito clicado')}>
-              <Text style={styles.createButtonText}>Criar</Text>
+            <Pressable style={[styles.createButton, loading && { opacity: 0.6 }]} onPress={handleCreate} disabled={loading}>
+              {loading
+                ? <ActivityIndicator color="#000" />
+                : <Text style={styles.createButtonText}>Criar</Text>}
             </Pressable>
           </View>
 
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Modal do Calendário (Colocado fora do ScrollView para evitar cortes) */}
       <Modal
         visible={showCalendar}
         transparent={true}

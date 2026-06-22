@@ -6,8 +6,9 @@ type AchievementsCardProps = {
   total?: number;
 };
 
-export default function AchievementsCard({ current = 5, total = 9 }: AchievementsCardProps) {
-  const progressPercentage = (current / total) * 100;
+export default function AchievementsCard({ current, total }: AchievementsCardProps) {
+  const isThereProgress = current !== undefined && total !== undefined;
+  const progressPercentage = isThereProgress ? (current / total) * 100 : 0;
 
   return (
     <View style={styles.container}>
