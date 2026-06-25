@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { fireEvent, render } from '@testing-library/react-native';
 import Button from '../Button';
 
 function extractText(node: any): string {
@@ -22,14 +23,8 @@ describe('Button', () => {
 
   it('chama onPress ao ser pressionado', () => {
     const mockOnPress = jest.fn();
-    let tree: renderer.ReactTestRenderer;
-    act(() => {
-      tree = renderer.create(<Button text="Clique" onPress={mockOnPress} />);
-    });
-    const instance = tree!.toJSON() as any;
-    act(() => {
-      instance.props.onPress();
-    });
+    const { getByText } = render(<Button text="Clique" onPress={mockOnPress} />);
+    fireEvent.press(getByText('Clique'));
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { fireEvent, render } from '@testing-library/react-native';
 import ProfileField from '../ProfileField';
 
 function extractText(node: any): string {
@@ -31,14 +32,10 @@ describe('ProfileField', () => {
 
   it('chama onPress quando fornecido e pressionado', () => {
     const mockOnPress = jest.fn();
-    let tree: renderer.ReactTestRenderer;
-    act(() => {
-      tree = renderer.create(<ProfileField label="Campo" value="Valor" onPress={mockOnPress} />);
-    });
-    const instance = tree!.toJSON() as any;
-    act(() => {
-      instance.props.onPress();
-    });
+    const { getByText } = render(
+      <ProfileField label="Campo" value="Valor" onPress={mockOnPress} />
+    );
+    fireEvent.press(getByText('Valor'));
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
 

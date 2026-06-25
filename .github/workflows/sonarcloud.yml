@@ -45,7 +45,7 @@ jobs:
           DATABASE_URL: postgresql://admin:123@localhost:5433/banco_central
         run: |
           cd backend
-          pytest tests/ --cov=. --cov-report=xml:../coverage-backend.xml --cov-omit="tests/*,*/__init__.py" -v
+          pytest tests/ --cov=. --cov-report=xml:../coverage-backend.xml -v
 
       - name: Salvar relatório de cobertura do backend
         uses: actions/upload-artifact@v4
@@ -71,7 +71,7 @@ jobs:
           cache-dependency-path: frontend-web/package-lock.json
 
       - name: Instalar dependências
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
         working-directory: frontend-web
 
       - name: Rodar ESLint
