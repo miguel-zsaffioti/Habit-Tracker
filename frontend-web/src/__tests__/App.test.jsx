@@ -1,30 +1,27 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { createElement } from 'react'
 import App from '../App'
-
-const renderApp = () => render(createElement(App))
 
 describe('App', () => {
   it('renderiza o título "Get started"', () => {
-    renderApp()
+    render(<App />)
     expect(screen.getByText('Get started')).toBeInTheDocument()
   })
 
   it('mostra o contador iniciando em 0', () => {
-    renderApp()
+    render(<App />)
     expect(screen.getByText(/Count is 0/i)).toBeInTheDocument()
   })
 
   it('incrementa o contador ao clicar no botão', () => {
-    renderApp()
+    render(<App />)
     const button = screen.getByRole('button', { name: /count is/i })
     fireEvent.click(button)
     expect(screen.getByText(/Count is 1/i)).toBeInTheDocument()
   })
 
   it('incrementa múltiplas vezes corretamente', () => {
-    renderApp()
+    render(<App />)
     const button = screen.getByRole('button', { name: /count is/i })
     fireEvent.click(button)
     fireEvent.click(button)
@@ -33,7 +30,7 @@ describe('App', () => {
   })
 
   it('renderiza o texto de instrução HMR', () => {
-    renderApp()
+    render(<App />)
     expect(screen.getByText(/Edit/i)).toBeInTheDocument()
   })
 })
