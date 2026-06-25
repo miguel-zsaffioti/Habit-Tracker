@@ -5,18 +5,18 @@ from typing import List, Optional
 
 class UserCreate(BaseModel):
     name: str
-    email: str
+    email: EmailStr
     password: str
     data_nascimento: Optional[date] = None
 
 class UserLogin(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 class UserResponse(BaseModel):
     id: int
     name: str
-    email: str
+    email: EmailStr
     data_nascimento: Optional[date] = None
 
     class Config:
