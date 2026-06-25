@@ -114,7 +114,7 @@ jobs:
         working-directory: mobile-app
 
       - name: Rodar testes com cobertura
-        run: npm test -- --coverage --coverageReporters=lcov --forceExit
+        run: npm test -- --forceExit
         working-directory: mobile-app
 
       - name: Salvar relatório de cobertura do mobile
