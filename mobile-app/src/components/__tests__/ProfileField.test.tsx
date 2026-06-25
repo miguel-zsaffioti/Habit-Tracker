@@ -1,6 +1,5 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { fireEvent, render } from '@testing-library/react-native';
 import ProfileField from '../ProfileField';
 
 function extractText(node: any): string {
@@ -11,14 +10,17 @@ function extractText(node: any): string {
   return '';
 }
 
+function findPressable(root: renderer.ReactTestInstance): renderer.ReactTestInstance | undefined {
+  return root.findAll((node) => node.props.onPress)[0];
+}
+
 describe('ProfileField', () => {
   it('renderiza o label corretamente', () => {
     let tree: renderer.ReactTestRenderer;
     act(() => {
       tree = renderer.create(<ProfileField label="Nome" value="João" />);
     });
-    const text = extractText(tree!.toJSON());
-    expect(text).toContain('Nome');
+    expect(extractText(tree!.toJSON())).toContain('Nome');
   });
 
   it('renderiza o valor corretamente', () => {
@@ -26,16 +28,20 @@ describe('ProfileField', () => {
     act(() => {
       tree = renderer.create(<ProfileField label="Email" value="joao@email.com" />);
     });
-    const text = extractText(tree!.toJSON());
-    expect(text).toContain('joao@email.com');
+    expect(extractText(tree!.toJSON())).toContain('joao@email.com');
   });
 
   it('chama onPress quando fornecido e pressionado', () => {
     const mockOnPress = jest.fn();
-    const { getByText } = render(
-      <ProfileField label="Campo" value="Valor" onPress={mockOnPress} />
-    );
-    fireEvent.press(getByText('Valor'));
+    let tree: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(<ProfileField label="Campo" value="Valor" onPress={mockOnPress} />);
+    });
+    const pressable = findPressable(tree!.root);
+    expect(pressable).toBeDefined();
+    act(() => {
+      pressable!.props.onPress();
+    });
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
 

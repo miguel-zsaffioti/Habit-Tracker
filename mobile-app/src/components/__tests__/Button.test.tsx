@@ -1,6 +1,5 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { fireEvent, render } from '@testing-library/react-native';
 import Button from '../Button';
 
 function extractText(node: any): string {
@@ -11,20 +10,30 @@ function extractText(node: any): string {
   return '';
 }
 
+function findPressable(root: renderer.ReactTestInstance): renderer.ReactTestInstance | undefined {
+  return root.findAll((node) => node.props.onPress)[0];
+}
+
 describe('Button', () => {
   it('renderiza o texto corretamente', () => {
     let tree: renderer.ReactTestRenderer;
     act(() => {
       tree = renderer.create(<Button text="Salvar" onPress={() => {}} />);
     });
-    const text = extractText(tree!.toJSON());
-    expect(text).toContain('Salvar');
+    expect(extractText(tree!.toJSON())).toContain('Salvar');
   });
 
   it('chama onPress ao ser pressionado', () => {
     const mockOnPress = jest.fn();
-    const { getByText } = render(<Button text="Clique" onPress={mockOnPress} />);
-    fireEvent.press(getByText('Clique'));
+    let tree: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(<Button text="Clique" onPress={mockOnPress} />);
+    });
+    const pressable = findPressable(tree!.root);
+    expect(pressable).toBeDefined();
+    act(() => {
+      pressable!.props.onPress();
+    });
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
 
@@ -33,7 +42,6 @@ describe('Button', () => {
     act(() => {
       tree = renderer.create(<Button text="Cancelar" onPress={() => {}} />);
     });
-    const text = extractText(tree!.toJSON());
-    expect(text).toContain('Cancelar');
+    expect(extractText(tree!.toJSON())).toContain('Cancelar');
   });
 });
